@@ -5,7 +5,8 @@ import pytest
 import paseto
 from unittest import mock
 
-my_claims: Dict[str, List[int]] = {'my claims': [1, 2, 3]}
+claims_name = 'my claims'
+my_claims: Dict[str, List[int]] = {claims_name: [1, 2, 3]}
 
 
 def _encode(o):
@@ -418,10 +419,10 @@ def test_required_claims():
         purpose='public',
         token=token,
         validate=False,
-        required_claims=['exp', 'my claims']
+        required_claims=['exp', claims_name]
     )
     assert 'exp' in parsed['message']
-    assert 'my claims' in parsed['message']
+    assert claims_name in parsed['message']
 
     with pytest.raises(paseto.PasetoValidationError):
         paseto.parse(
