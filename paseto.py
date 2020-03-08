@@ -17,6 +17,7 @@ class PasetoTokenExpired(PasetoValidationError): pass
 
 
 DEFAULT_RULES = {'exp'}
+inv_purp = 'invalid purpose'
 
 
 def pre_auth_encode(*parts):
@@ -177,7 +178,7 @@ def create(
     :return:
     """
     if purpose not in {'local', 'public'}:
-        raise InvalidPurposeException('invalid purpose')
+        raise InvalidPurposeException(inv_purp)
     if not key:
         raise ValueError('key is required')
 
@@ -201,7 +202,7 @@ def create(
             footer=encoded_footer,
         )
     else:
-        raise InvalidPurposeException('invalid purpose')
+        raise InvalidPurposeException(inv_purp)
     return token
 
 
@@ -275,7 +276,7 @@ def parse(
     :return:
     """
     if purpose not in {'local', 'public'}:
-        raise InvalidPurposeException('invalid purpose')
+        raise InvalidPurposeException(inv_purp)
     if not key:
         raise ValueError('key is required')
     if purpose == 'local':
@@ -299,13 +300,11 @@ def parse(
     if unknown_rules:
         raise ValueError(f'unknown rules: {unknown_rules}')
 
-    if validate:
-        # validate all the claims
-        if 'exp' in rules and 'exp' in decoded_message:
-            # validate expiration
-            exp = decoded_message['exp']
-            when = pendulum.parse(exp)
-            if pendulum.now() > when:
-                raise PasetoTokenExpired('token expired')
+    if validate and 'exp' in rules and 'exp' in decoded_message:
+        # validate expiration
+        exp = decoded_message['exp']
+        when = pendulum.parse(exp)
+        if pendulum.now() > when:
+            raise PasetoTokenExpired('token expired')
     return {'message': decoded_message, 'footer': decoded_footer}
 
