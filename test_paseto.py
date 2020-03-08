@@ -1,8 +1,11 @@
 import json
+from typing import Dict, List
 
 import pytest
 import paseto
 from unittest import mock
+
+my_claims: Dict[str, List[int]] = {'my claims': [1, 2, 3]}
 
 
 def _encode(o):
@@ -361,7 +364,7 @@ def test_exp_claim():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims={'my claims': [1, 2, 3]},
+        claims=my_claims,
         exp_seconds=300
     )
     parsed = paseto.parse(
@@ -376,7 +379,7 @@ def test_claim_is_expired():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims={'my claims': [1, 2, 3]},
+        claims=my_claims,
         exp_seconds=-300
     )
     with pytest.raises(paseto.PasetoTokenExpired):
@@ -391,7 +394,7 @@ def test_skip_validation_on_expired():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims={'my claims': [1, 2, 3]},
+        claims=my_claims,
         exp_seconds=-300
     )
     parsed = paseto.parse(
@@ -407,7 +410,7 @@ def test_required_claims():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims={'my claims': [1, 2, 3]},
+        claims=my_claims,
         exp_seconds=-300
     )
     parsed = paseto.parse(
