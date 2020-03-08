@@ -241,6 +241,13 @@ def _extract_footer_unsafe(token):
     return b64decode(parts[3])
 
 
+def check_claims(given, required):
+    if required:
+        missing_claims = set(required).difference(given)
+        if missing_claims:
+            raise PasetoValidationError(f'required claims missing {missing_claims}')
+
+
 def parse(
     key,
     purpose: str,
@@ -286,10 +293,7 @@ def parse(
     decoded_message = encoder.loads(result['message'])
     decoded_footer = encoder.loads(result['footer']) if result['footer'] else None
 
-    if required_claims:
-        missing_claims = set(required_claims).difference(set(decoded_message.keys()))
-        if missing_claims:
-            raise PasetoValidationError(f'required claims missing {missing_claims}')
+    check_claims(set(decoded_message.keys()), required_claims)
 
     rules = DEFAULT_RULES if not rules else set(rules)
     if validate and not rules:
@@ -307,4 +311,3 @@ def parse(
         if pendulum.now() > when:
             raise PasetoTokenExpired('token expired')
     return {'message': decoded_message, 'footer': decoded_footer}
-
