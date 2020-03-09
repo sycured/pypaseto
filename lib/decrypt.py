@@ -1,18 +1,22 @@
 from secrets import compare_digest
 
-from pysodium import crypto_aead_xchacha20poly1305_ietf_NPUBBYTES, crypto_aead_xchacha20poly1305_ietf_decrypt
+from pysodium import crypto_aead_xchacha20poly1305_ietf_NPUBBYTES, \
+    crypto_aead_xchacha20poly1305_ietf_decrypt
 
 from lib.base64_helpers import b64decode
 from lib.utils import pre_auth_encode
 
 
-class PasetoException(Exception): pass
+class PasetoException(Exception):
+    pass
 
 
-class InvalidVersionException(PasetoException): pass
+class InvalidVersionException(PasetoException):
+    pass
 
 
-class InvalidPurposeException(PasetoException): pass
+class InvalidPurposeException(PasetoException):
+    pass
 
 
 def decrypt(cls, token: bytes, key: bytes) -> dict:

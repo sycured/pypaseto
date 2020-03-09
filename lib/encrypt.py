@@ -1,5 +1,5 @@
-from pysodium import crypto_aead_xchacha20poly1305_ietf_NPUBBYTES, crypto_aead_xchacha20poly1305_ietf_encrypt, \
-    crypto_generichash, randombytes
+from pysodium import crypto_aead_xchacha20poly1305_ietf_NPUBBYTES, \
+    crypto_aead_xchacha20poly1305_ietf_encrypt, crypto_generichash, randombytes
 
 from lib.base64_helpers import b64encode
 from lib.utils import pre_auth_encode
@@ -9,7 +9,7 @@ def encrypt(
         cls,
         plaintext: bytes,
         key: bytes,
-        footer=b'',
+        footer=b''
 ) -> bytes:
     nonce_key = randombytes(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES)
     nonce = crypto_generichash(

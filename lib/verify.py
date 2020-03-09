@@ -6,16 +6,20 @@ from lib.base64_helpers import b64decode
 from lib.utils import pre_auth_encode
 
 
-class PasetoException(Exception): pass
+class PasetoException(Exception):
+    pass
 
 
-class InvalidVersionException(PasetoException): pass
+class InvalidVersionException(PasetoException):
+    pass
 
 
-class InvalidPurposeException(PasetoException): pass
+class InvalidPurposeException(PasetoException):
+    pass
 
 
-class InvalidTokenException(PasetoException): pass
+class InvalidTokenException(PasetoException):
+    pass
 
 
 def verify(cls, token, key):
