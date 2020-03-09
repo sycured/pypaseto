@@ -1,162 +1,49 @@
 #!/usr/bin/env python3
+from pendulum import now, parse as pparse
 
-import base64
-import struct
-import secrets
-import json
-import pysodium
-import pendulum
+from lib.base64_helpers import b64decode
+from lib.decrypt import decrypt
+from lib.encrypt import encrypt
+from lib.json_helpers import JsonEncoder
+from lib.sign import sign
+from lib.verify import verify
 
 
-class PasetoException(Exception): pass
-class InvalidVersionException(PasetoException): pass
-class InvalidPurposeException(PasetoException): pass
-class InvalidTokenException(PasetoException): pass
-class PasetoValidationError(PasetoException): pass
-class PasetoTokenExpired(PasetoValidationError): pass
+class PasetoException(Exception):
+    pass
+
+
+class InvalidVersionException(PasetoException):
+    pass
+
+
+class InvalidPurposeException(PasetoException):
+    pass
+
+
+class InvalidTokenException(PasetoException):
+    pass
+
+
+class PasetoValidationError(PasetoException):
+    pass
+
+
+class PasetoTokenExpired(PasetoValidationError):
+    pass
 
 
 DEFAULT_RULES = {'exp'}
 inv_purp = 'invalid purpose'
 
 
-def pre_auth_encode(*parts):
-    accumulator = struct.pack('<Q', len(parts))
-    for part in parts:
-        accumulator += struct.pack('<Q', len(part))
-        accumulator += part
-    return accumulator
-
-
-def b64encode(data):
-    return base64.urlsafe_b64encode(data).rstrip(b'=')
-
-
-def b64decode(data):
-    return base64.urlsafe_b64decode(data + b'=' * (-len(data) % 4))
-
-
-class PasetoV2:
-    """
-    This class provides the basic encrypt/decrypt, sign/verify functionality
-    for the underlying v2 protocol of paseto. It doesn't handle verification
-    of claims, just the cryptographic verification and base64 decoding.
-
-    Please use the "create" and "parse" functions, which will handle parsing
-    and validating registered claims, as well as JSON encode/decode for you.
-    """
-    version = b'v2'
-    valid_purposes = [b'local', b'public']
-    local_header = b'v2.local.'
-    public_header = b'v2.public.'
-
-    @classmethod
-    def encrypt(
-        cls,
-        plaintext: bytes,
-        key: bytes,
-        footer=b'',
-    ) -> bytes:
-        nonce_key = pysodium.randombytes(pysodium.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES)
-        nonce = pysodium.crypto_generichash(
-            plaintext,
-            k=nonce_key,
-            outlen=pysodium.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
-        )
-        ciphertext = pysodium.crypto_aead_xchacha20poly1305_ietf_encrypt(
-            message=plaintext,
-            ad=pre_auth_encode(cls.local_header, nonce, footer),
-            nonce=nonce,
-            key=key
-        )
-        token = cls.local_header + b64encode(nonce + ciphertext)
-        if footer:
-            token += b'.' + b64encode(footer)
-        return token
-
-    @classmethod
-    def decrypt(cls, token: bytes, key: bytes) -> dict:
-        parts = token.split(b'.')
-        footer = b''
-        if len(parts) == 4:
-            encoded_footer = parts[-1]
-            footer = b64decode(encoded_footer)
-        header_len = len(cls.local_header)
-        header = token[:header_len]
-        token_version = token[:2]
-        if not secrets.compare_digest(token_version, cls.version):
-            raise InvalidVersionException('not a v2 token')
-        if not secrets.compare_digest(header, cls.local_header):
-            raise InvalidPurposeException('not a v2.local token')
-        decoded = b64decode(parts[2])
-        nonce = decoded[:pysodium.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES]
-        ciphertext = decoded[pysodium.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES:]
-        plaintext = pysodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
-            ciphertext=ciphertext,
-            ad=pre_auth_encode(header, nonce, footer),
-            nonce=nonce,
-            key=key
-        )
-        return {
-            'message': plaintext,
-            'footer': footer if footer else None
-        }
-
-    @classmethod
-    def sign(cls, data, key, footer=b''):
-        signature = pysodium.crypto_sign_detached(
-            m=pre_auth_encode(cls.public_header, data, footer),
-            sk=key
-        )
-        token = cls.public_header + b64encode(data + signature)
-        if footer:
-            token += b'.' + b64encode(footer)
-        return token
-
-    @classmethod
-    def verify(cls, token, key):
-        token_header = token[:len(cls.public_header)]
-        token_version = token[:2]
-        if not secrets.compare_digest(token_version, cls.version):
-            raise InvalidVersionException('not a v2 token')
-        if not secrets.compare_digest(token_header, cls.public_header):
-            raise InvalidPurposeException('not a v2.public token')
-        parts = token.split(b'.')
-        footer = b''
-        if len(parts) == 4:
-            encoded_footer = parts[-1]
-            footer = b64decode(encoded_footer)
-        decoded = b64decode(parts[2])
-        message = decoded[:-pysodium.crypto_sign_BYTES]
-        signature = decoded[-pysodium.crypto_sign_BYTES:]
-        try:
-            pysodium.crypto_sign_verify_detached(
-                sig=signature,
-                msg=pre_auth_encode(token_header, message, footer),
-                pk=key
-            )
-        except ValueError as e:
-            raise InvalidTokenException('invalid signature') from e
-        return {'message': message, 'footer': footer}
-
-
-class JsonEncoder(object):
-    @classmethod
-    def dumps(cls, var):
-        return json.dumps(var, sort_keys=True, separators=(',', ':')).encode('utf8')
-
-    @classmethod
-    def loads(cls, var):
-        return json.loads(var)
-
-
 def create(
-    key,
-    purpose: str,
-    claims: dict,
-    exp_seconds=None,
-    footer=None,
-    encoder=JsonEncoder,
+        key,
+        purpose: str,
+        claims: dict,
+        exp_seconds=None,
+        footer=None,
+        encoder=JsonEncoder,
 ):
     """
     Creates a new paseto token using the provided key, purpose, and claims.
@@ -183,23 +70,24 @@ def create(
         raise ValueError('key is required')
 
     if exp_seconds:
-        then = pendulum.now().add(seconds=exp_seconds).to_atom_string()
+        then = now().add(seconds=exp_seconds).to_atom_string()
         claims['exp'] = then
 
     encoded = encoder.dumps(claims)
     encoded_footer = encoder.dumps(footer) if footer else b''
 
     if purpose == 'local':
-        token = PasetoV2.encrypt(
+        token = encrypt(
             plaintext=encoded,
             key=key,
-            footer=encoded_footer,
+            footer=encoded_footer
         )
+
     elif purpose == 'public':
-        token = PasetoV2.sign(
+        token = sign(
             data=encoded,
             key=key,
-            footer=encoded_footer,
+            footer=encoded_footer
         )
     else:
         raise InvalidPurposeException(inv_purp)
@@ -249,13 +137,13 @@ def check_claims(given, required):
 
 
 def parse(
-    key,
-    purpose: str,
-    token: bytes,
-    encoder=JsonEncoder,
-    validate: bool = True,
-    rules=None,
-    required_claims=None
+        key,
+        purpose: str,
+        token: bytes,
+        encoder=JsonEncoder,
+        validate: bool = True,
+        rules=None,
+        required_claims=None
 ):
     """
     Parse a paseto token.
@@ -287,9 +175,9 @@ def parse(
     if not key:
         raise ValueError('key is required')
     if purpose == 'local':
-        result = PasetoV2.decrypt(token, key)
+        result = decrypt(token, key)
     else:
-        result = PasetoV2.verify(token, key)
+        result = verify(token, key)
     decoded_message = encoder.loads(result['message'])
     decoded_footer = encoder.loads(result['footer']) if result['footer'] else None
 
@@ -307,7 +195,7 @@ def parse(
     if validate and 'exp' in rules and 'exp' in decoded_message:
         # validate expiration
         exp = decoded_message['exp']
-        when = pendulum.parse(exp)
-        if pendulum.now() > when:
+        when = pparse(exp)
+        if now() > when:
             raise PasetoTokenExpired('token expired')
     return {'message': decoded_message, 'footer': decoded_footer}
