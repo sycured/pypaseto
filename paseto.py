@@ -9,17 +9,41 @@ from lib.utils import extract_footer_unsafe as lextract_footer_unsafe
 from lib.verify import verify as lverify
 
 
+class PasetoException(Exception):
+    pass
+
+
+class InvalidVersionException(PasetoException):
+    pass
+
+
+class InvalidPurposeException(PasetoException):
+    pass
+
+
+class InvalidTokenException(PasetoException):
+    pass
+
+
+class PasetoValidationError(PasetoException):
+    pass
+
+
+class PasetoTokenExpired(PasetoValidationError):
+    pass
+
+
 def create(key, purpose: str, claims: dict, exp_seconds=None, footer=None,
            encoder=JsonEncoder):
     lcreate(key, purpose, claims, exp_seconds, footer, encoder)
 
 
-def decrypt(cls, token: bytes, key: bytes):
-    ldecrypt(cls, token, key)
+def decrypt(token: bytes, key: bytes):
+    ldecrypt(token, key)
 
 
-def encrypt(cls, plaintext: bytes, key: bytes, footer=b''):
-    lencrypt(cls, plaintext, key, footer)
+def encrypt(plaintext: bytes, key: bytes, footer=b''):
+    lencrypt(plaintext, key, footer)
 
 
 def extract_footer_unsafe(token):
@@ -32,9 +56,9 @@ def parse(key, purpose: str, token: bytes, encoder=JsonEncoder,
            required_claims)
 
 
-def sign(cls, data, key, footer=b''):
-    lsign(cls, data, key, footer)
+def sign(data, key, footer=b''):
+    lsign(data, key, footer)
 
 
-def verify(cls, token, key):
-    lverify(cls, token, key)
+def verify(token, key):
+    lverify(token, key)

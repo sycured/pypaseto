@@ -194,14 +194,14 @@ public_key = bytes.fromhex(
 ])
 def test_encrypt(mock_randombytes, token):
     mock_randombytes.return_value = token['nonce']
-    output_token = paseto.PasetoV2.encrypt(
+    output_token = paseto.encrypt(
         plaintext=token['message'],
         key=token['key'],
         footer=token['footer'],
     )
     assert output_token == token['raw'], f"{token['name']} did not produce matching token"
 
-    decrypted = paseto.PasetoV2.decrypt(
+    decrypted = paseto.decrypt(
         token=token['raw'],
         key=token['key'],
     )
@@ -285,13 +285,13 @@ def test_encrypt(mock_randombytes, token):
     },
 ])
 def test_sign(token):
-    result = paseto.PasetoV2.sign(
+    result = paseto.sign(
         token['message'],
         token['key'],
         token['footer']
     )
     assert result == token['raw'], f"{token['name']} did not produce matching token"
-    verify = paseto.PasetoV2.verify(result, public_key)
+    verify = paseto.verify(result, public_key)
     assert verify['message'] == token['message'], f"{token['name']} verifycation did not produce original message"
     assert verify['footer'] == token['footer'], f"{token['name']} verifycation did not produce original footer"
 

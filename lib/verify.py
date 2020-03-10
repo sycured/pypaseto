@@ -4,6 +4,7 @@ from pysodium import crypto_sign_BYTES, crypto_sign_verify_detached
 
 from lib.base64_helpers import b64decode
 from lib.utils import pre_auth_encode
+from lib import consts
 
 
 class PasetoException(Exception):
@@ -22,12 +23,12 @@ class InvalidTokenException(PasetoException):
     pass
 
 
-def verify(cls, token, key):
-    token_header = token[:len(cls.public_header)]
+def verify(token, key):
+    token_header = token[:len(consts.public_header)]
     token_version = token[:2]
-    if not compare_digest(token_version, cls.version):
+    if not compare_digest(token_version, consts.version):
         raise InvalidVersionException('not a v2 token')
-    if not compare_digest(token_header, cls.public_header):
+    if not compare_digest(token_header, consts.public_header):
         raise InvalidPurposeException('not a v2.public token')
     parts = token.split(b'.')
     footer = b''
