@@ -1,7 +1,8 @@
 import json
+from typing import Dict, List
 
 import pytest
-import paseto
+
 import paseto
 
 
@@ -10,10 +11,14 @@ def _encode(o):
     return json.dumps(o, sort_keys=True, separators=(',', ':')).encode('utf8')
 
 
-sym_key = bytes.fromhex('707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f')
-null_key = b'\0'*32
-full_key = b'\xff'*32
-nonce = b'\0'*24
+claims_name = 'my claims'
+my_claims: Dict[str, List[int]] = {claims_name: [1, 2, 3]}
+
+sym_key = bytes.fromhex(
+    '707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f')
+null_key = b'\0' * 32
+full_key = b'\xff' * 32
+nonce = b'\0' * 24
 nonce2 = bytes.fromhex('45742c976d684ff84ebdc0de59809a97cda2f64c84fda19b')
 private_key = bytes.fromhex(
     'b4cbfb43df4ce210727d953e4a713307fa19bb7d9f85041438d9e11b942a37741'
@@ -123,7 +128,8 @@ public_key = bytes.fromhex(
     {
         'name': 'Test Vector 2E-5',
         'raw': b'v2.local.5K4SCXNhItIhyNuVIZcwrdtaDKiyF81-eWHScuE0idiVqCo72bbjo07W05mqQkhLZdVbxEa5I_u5sgVk1QLkcWEcOSlLHwNpCkvmGGlbCdNExn6Qclw3qTKIIl5-zKeei_8CY0oUMtEai3HYcQ.UGFyYWdvbiBJbml0aWF0aXZlIEVudGVycHJpc2Vz',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': sym_key,
         'footer': b'Paragon Initiative Enterprises',
         'nonce': nonce2,
@@ -131,9 +137,11 @@ public_key = bytes.fromhex(
     {
         'name': 'Test Vector 2E-6',
         'raw': b'v2.local.5K4SCXNhItIhyNuVIZcwrdtaDKiyF81-eWHScuE0idiVqCo72bbjo07W05mqQkhLZdVbxEa5I_u5sgVk1QLkcWEcOSlLHwNpCkvmGGlbCdNExn6Qclw3qTKIIl5-zSLIrxZqOLwcFLYbVK1SrQ.eyJraWQiOiJ6VmhNaVBCUDlmUmYyc25FY1Q3Z0ZUaW9lQTlDT2NOeTlEZmdMMVc2MGhhTiJ9',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': sym_key,
-        'footer': _encode({'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
+        'footer': _encode(
+            {'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
         'nonce': nonce2,
     },
 
@@ -141,7 +149,8 @@ public_key = bytes.fromhex(
     {
         'name': 'Test Vector 2-E-1',
         'raw': b'v2.local.97TTOvgwIxNGvV80XKiGZg_kD3tsXM_-qB4dZGHOeN1cTkgQ4PnW8888l802W8d9AvEGnoNBY3BnqHORy8a5cC8aKpbA0En8XELw2yDk2f1sVODyfnDbi6rEGMY3pSfCbLWMM2oHJxvlEl2XbQ',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': sym_key,
         'footer': b'',
         'nonce': nonce,
@@ -149,7 +158,8 @@ public_key = bytes.fromhex(
     {
         'name': 'Test Vector 2-E-2',
         'raw': b'v2.local.CH50H-HM5tzdK4kOmQ8KbIvrzJfjYUGuu5Vy9ARSFHy9owVDMYg3-8rwtJZQjN9ABHb2njzFkvpr5cOYuRyt7CRXnHt42L5yZ7siD-4l-FoNsC7J2OlvLlIwlG06mzQVunrFNb7Z3_CHM0PK5w',
-        'message': _encode({'data': 'this is a secret message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a secret message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': sym_key,
         'footer': b'',
         'nonce': nonce,
@@ -157,7 +167,8 @@ public_key = bytes.fromhex(
     {
         'name': 'Test Vector 2-E-3',
         'raw': b'v2.local.5K4SCXNhItIhyNuVIZcwrdtaDKiyF81-eWHScuE0idiVqCo72bbjo07W05mqQkhLZdVbxEa5I_u5sgVk1QLkcWEcOSlLHwNpCkvmGGlbCdNExn6Qclw3qTKIIl5-O5xRBN076fSDPo5xUCPpBA',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': sym_key,
         'footer': b'',
         'nonce': nonce2,
@@ -165,7 +176,8 @@ public_key = bytes.fromhex(
     {
         'name': 'Test Vector 2-E-4',
         'raw': b'v2.local.pvFdDeNtXxknVPsbBCZF6MGedVhPm40SneExdClOxa9HNR8wFv7cu1cB0B4WxDdT6oUc2toyLR6jA6sc-EUM5ll1EkeY47yYk6q8m1RCpqTIzUrIu3B6h232h62DPbIxtjGvNRAwsLK7LcV8oQ',
-        'message': _encode({'data': 'this is a secret message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a secret message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': sym_key,
         'footer': b'',
         'nonce': nonce2,
@@ -173,17 +185,21 @@ public_key = bytes.fromhex(
     {
         'name': 'Test Vector 2-E-5',
         'raw': b'v2.local.5K4SCXNhItIhyNuVIZcwrdtaDKiyF81-eWHScuE0idiVqCo72bbjo07W05mqQkhLZdVbxEa5I_u5sgVk1QLkcWEcOSlLHwNpCkvmGGlbCdNExn6Qclw3qTKIIl5-zSLIrxZqOLwcFLYbVK1SrQ.eyJraWQiOiJ6VmhNaVBCUDlmUmYyc25FY1Q3Z0ZUaW9lQTlDT2NOeTlEZmdMMVc2MGhhTiJ9',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': sym_key,
-        'footer': _encode({'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
+        'footer': _encode(
+            {'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
         'nonce': nonce2,
     },
     {
         'name': 'Test Vector 2-E-6',
         'raw': b'v2.local.pvFdDeNtXxknVPsbBCZF6MGedVhPm40SneExdClOxa9HNR8wFv7cu1cB0B4WxDdT6oUc2toyLR6jA6sc-EUM5ll1EkeY47yYk6q8m1RCpqTIzUrIu3B6h232h62DnMXKdHn_Smp6L_NfaEnZ-A.eyJraWQiOiJ6VmhNaVBCUDlmUmYyc25FY1Q3Z0ZUaW9lQTlDT2NOeTlEZmdMMVc2MGhhTiJ9',
-        'message': _encode({'data': 'this is a secret message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a secret message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': sym_key,
-        'footer': _encode({'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
+        'footer': _encode(
+            {'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
         'nonce': nonce2,
     },
 ])
@@ -194,15 +210,18 @@ def test_encrypt(token):
         footer=token['footer'],
         nonce_testing=token['nonce']
     )
-    assert output_token == token['raw'], f"{token['name']} did not produce matching token"
+    assert output_token == token[
+        'raw'], f"{token['name']} did not produce matching token"
 
     decrypted = paseto.decrypt(
         token=token['raw'],
         key=token['key'],
     )
-    assert decrypted['message'] == token['message'], f"{token['name']} decryption did not produce original message"
+    assert decrypted['message'] == token[
+        'message'], f"{token['name']} decryption did not produce original message"
     if decrypted['footer']:
-        assert decrypted['footer']== token['footer'], f"{token['name']} decryption did not produce original footer"
+        assert decrypted['footer'] == token[
+            'footer'], f"{token['name']} decryption did not produce original footer"
 
 
 @pytest.mark.parametrize("token", [
@@ -244,39 +263,46 @@ def test_encrypt(token):
     {
         'name': 'Test Vector S-6',
         'raw': b'v2.public.eyJkYXRhIjoidGhpcyBpcyBhIHNpZ25lZCBtZXNzYWdlIiwiZXhwIjoiMjAxOS0wMS0wMVQwMDowMDowMCswMDowMCJ9HQr8URrGntTu7Dz9J2IF23d1M7-9lH9xiqdGyJNvzp4angPW5Esc7C5huy_M8I8_DjJK2ZXC2SUYuOFM-Q_5Cw',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': private_key,
         'footer': b'',
     },
     {
         'name': 'Test Vector S-7',
         'raw': b'v2.public.eyJkYXRhIjoidGhpcyBpcyBhIHNpZ25lZCBtZXNzYWdlIiwiZXhwIjoiMjAxOS0wMS0wMVQwMDowMDowMCswMDowMCJ9fgvV_frkjyH7h0CWrGfonEctefgzQaCkICOAxDdbixbPvH_SMm0T6343YfgEAlOi8--euLS5gLlykHhREL38BA.UGFyYWdvbiBJbml0aWF0aXZlIEVudGVycHJpc2Vz',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': private_key,
         'footer': b'Paragon Initiative Enterprises',
     },
     {
         'name': 'Test Vector S-8',
         'raw': b'v2.public.eyJkYXRhIjoidGhpcyBpcyBhIHNpZ25lZCBtZXNzYWdlIiwiZXhwIjoiMjAxOS0wMS0wMVQwMDowMDowMCswMDowMCJ9flsZsx_gYCR0N_Ec2QxJFFpvQAs7h9HtKwbVK2n1MJ3Rz-hwe8KUqjnd8FAnIJZ601tp7lGkguU63oGbomhoBw.eyJraWQiOiJ6VmhNaVBCUDlmUmYyc25FY1Q3Z0ZUaW9lQTlDT2NOeTlEZmdMMVc2MGhhTiJ9',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': private_key,
-        'footer': _encode({'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
+        'footer': _encode(
+            {'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
     },
 
     # These are the "official" test vectors
     {
         'name': 'Test Vector 2-S-1',
         'raw': b'v2.public.eyJkYXRhIjoidGhpcyBpcyBhIHNpZ25lZCBtZXNzYWdlIiwiZXhwIjoiMjAxOS0wMS0wMVQwMDowMDowMCswMDowMCJ9HQr8URrGntTu7Dz9J2IF23d1M7-9lH9xiqdGyJNvzp4angPW5Esc7C5huy_M8I8_DjJK2ZXC2SUYuOFM-Q_5Cw',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': private_key,
         'footer': b'',
     },
     {
         'name': 'Test Vector 2-S-2',
         'raw': b'v2.public.eyJkYXRhIjoidGhpcyBpcyBhIHNpZ25lZCBtZXNzYWdlIiwiZXhwIjoiMjAxOS0wMS0wMVQwMDowMDowMCswMDowMCJ9flsZsx_gYCR0N_Ec2QxJFFpvQAs7h9HtKwbVK2n1MJ3Rz-hwe8KUqjnd8FAnIJZ601tp7lGkguU63oGbomhoBw.eyJraWQiOiJ6VmhNaVBCUDlmUmYyc25FY1Q3Z0ZUaW9lQTlDT2NOeTlEZmdMMVc2MGhhTiJ9',
-        'message': _encode({'data': 'this is a signed message', 'exp': '2019-01-01T00:00:00+00:00'}),
+        'message': _encode({'data': 'this is a signed message',
+                            'exp': '2019-01-01T00:00:00+00:00'}),
         'key': private_key,
-        'footer': _encode({'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
+        'footer': _encode(
+            {'kid': 'zVhMiPBP9fRf2snEcT7gFTioeA9COcNy9DfgL1W60haN'}),
     },
 ])
 def test_sign(token):
@@ -285,10 +311,13 @@ def test_sign(token):
         token['key'],
         token['footer']
     )
-    assert result == token['raw'], f"{token['name']} did not produce matching token"
+    assert result == token[
+        'raw'], f"{token['name']} did not produce matching token"
     verify = paseto.verify(result, public_key)
-    assert verify['message'] == token['message'], f"{token['name']} verifycation did not produce original message"
-    assert verify['footer'] == token['footer'], f"{token['name']} verifycation did not produce original footer"
+    assert verify['message'] == token[
+        'message'], f"{token['name']} verifycation did not produce original message"
+    assert verify['footer'] == token[
+        'footer'], f"{token['name']} verifycation did not produce original footer"
 
 
 @pytest.mark.parametrize("options", [
@@ -360,7 +389,7 @@ def test_exp_claim():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims={'my claims': [1, 2, 3]},
+        claims=my_claims,
         exp_seconds=300
     )
     parsed = paseto.parse(
@@ -375,7 +404,7 @@ def test_claim_is_expired():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims={'my claims': [1, 2, 3]},
+        claims=my_claims,
         exp_seconds=-300
     )
     with pytest.raises(BaseException):
@@ -390,7 +419,7 @@ def test_skip_validation_on_expired():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims={'my claims': [1, 2, 3]},
+        claims=my_claims,
         exp_seconds=-300
     )
     parsed = paseto.parse(
@@ -406,7 +435,7 @@ def test_required_claims():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims={'my claims': [1, 2, 3]},
+        claims=my_claims,
         exp_seconds=-300
     )
     parsed = paseto.parse(
@@ -414,7 +443,7 @@ def test_required_claims():
         purpose='public',
         token=token,
         validate=False,
-        required_claims=['exp', 'my claims']
+        required_claims=['exp', claims_name]
     )
     assert 'exp' in parsed['message']
     assert 'my claims' in parsed['message']
