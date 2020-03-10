@@ -12,9 +12,8 @@ def encrypt(
         footer=b'',
         nonce_testing=None
 ) -> bytes:
-    if nonce_testing != None:
+    if nonce_testing is not None:
         nonce = nonce_testing
-        nonce_testing = None
     else:
         nonce = randombytes(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES)
     nonce = crypto_generichash(
