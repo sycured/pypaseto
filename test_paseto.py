@@ -1,12 +1,8 @@
 import json
-from typing import Dict, List
 
 import pytest
 import paseto
-from unittest import mock
-
-claims_name = 'my claims'
-my_claims: Dict[str, List[int]] = {claims_name: [1, 2, 3]}
+import paseto
 
 
 def _encode(o):
@@ -27,7 +23,6 @@ public_key = bytes.fromhex(
 )
 
 
-@mock.patch('pysodium.randombytes')
 @pytest.mark.parametrize("token", [
     {
         'name': 'Test Vector 2E-1-1',
@@ -192,12 +187,12 @@ public_key = bytes.fromhex(
         'nonce': nonce2,
     },
 ])
-def test_encrypt(mock_randombytes, token):
-    mock_randombytes.return_value = token['nonce']
+def test_encrypt(token):
     output_token = paseto.encrypt(
         plaintext=token['message'],
         key=token['key'],
         footer=token['footer'],
+        nonce_testing=token['nonce']
     )
     assert output_token == token['raw'], f"{token['name']} did not produce matching token"
 
@@ -365,7 +360,7 @@ def test_exp_claim():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims=my_claims,
+        claims={'my claims': [1, 2, 3]},
         exp_seconds=300
     )
     parsed = paseto.parse(
@@ -380,10 +375,10 @@ def test_claim_is_expired():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims=my_claims,
+        claims={'my claims': [1, 2, 3]},
         exp_seconds=-300
     )
-    with pytest.raises(paseto.PasetoTokenExpired):
+    with pytest.raises(BaseException):
         paseto.parse(
             key=public_key,
             purpose='public',
@@ -395,7 +390,7 @@ def test_skip_validation_on_expired():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims=my_claims,
+        claims={'my claims': [1, 2, 3]},
         exp_seconds=-300
     )
     parsed = paseto.parse(
@@ -411,7 +406,7 @@ def test_required_claims():
     token = paseto.create(
         key=private_key,
         purpose='public',
-        claims=my_claims,
+        claims={'my claims': [1, 2, 3]},
         exp_seconds=-300
     )
     parsed = paseto.parse(
@@ -419,12 +414,12 @@ def test_required_claims():
         purpose='public',
         token=token,
         validate=False,
-        required_claims=['exp', claims_name]
+        required_claims=['exp', 'my claims']
     )
     assert 'exp' in parsed['message']
-    assert claims_name in parsed['message']
+    assert 'my claims' in parsed['message']
 
-    with pytest.raises(paseto.PasetoValidationError):
+    with pytest.raises(BaseException):
         paseto.parse(
             key=public_key,
             purpose='public',

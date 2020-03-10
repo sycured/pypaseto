@@ -7,29 +7,13 @@ from lib.utils import pre_auth_encode
 from lib import consts
 
 
-class PasetoException(Exception):
-    pass
-
-
-class InvalidVersionException(PasetoException):
-    pass
-
-
-class InvalidPurposeException(PasetoException):
-    pass
-
-
-class InvalidTokenException(PasetoException):
-    pass
-
-
 def verify(token, key):
     token_header = token[:len(consts.public_header)]
     token_version = token[:2]
     if not compare_digest(token_version, consts.version):
-        raise InvalidVersionException('not a v2 token')
+        raise ValueError('not a v2 token')
     if not compare_digest(token_header, consts.public_header):
-        raise InvalidPurposeException('not a v2.public token')
+        raise ValueError('not a v2.public token')
     parts = token.split(b'.')
     footer = b''
     if len(parts) == 4:
@@ -45,5 +29,5 @@ def verify(token, key):
             pk=key
         )
     except ValueError as e:
-        raise InvalidTokenException('invalid signature') from e
+        raise ValueError('invalid signature') from e
     return {'message': message, 'footer': footer}

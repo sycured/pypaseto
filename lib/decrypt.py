@@ -8,17 +8,6 @@ from lib.utils import pre_auth_encode
 
 from lib import consts
 
-class PasetoException(Exception):
-    pass
-
-
-class InvalidVersionException(PasetoException):
-    pass
-
-
-class InvalidPurposeException(PasetoException):
-    pass
-
 
 def decrypt(token: bytes, key: bytes) -> dict:
     parts = token.split(b'.')
@@ -30,9 +19,9 @@ def decrypt(token: bytes, key: bytes) -> dict:
     header = token[:header_len]
     token_version = token[:2]
     if not compare_digest(token_version, consts.version):
-        raise InvalidVersionException('not a v2 token')
+        raise ValueError('not a v2 token')
     if not compare_digest(header, consts.local_header):
-        raise InvalidPurposeException('not a v2.local token')
+        raise ValueError('not a v2.local token')
     decoded = b64decode(parts[2])
     nonce = decoded[:crypto_aead_xchacha20poly1305_ietf_NPUBBYTES]
     ciphertext = decoded[crypto_aead_xchacha20poly1305_ietf_NPUBBYTES:]

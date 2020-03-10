@@ -9,12 +9,17 @@ from lib import consts
 def encrypt(
         plaintext: bytes,
         key: bytes,
-        footer=b''
+        footer=b'',
+        nonce_testing=None
 ) -> bytes:
-    nonce_key = randombytes(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES)
+    if nonce_testing != None:
+        nonce = nonce_testing
+        nonce_testing = None
+    else:
+        nonce = randombytes(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES)
     nonce = crypto_generichash(
         plaintext,
-        k=nonce_key,
+        k=nonce,
         outlen=crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
     )
     ciphertext = crypto_aead_xchacha20poly1305_ietf_encrypt(

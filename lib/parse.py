@@ -5,30 +5,6 @@ from lib.json_helpers import JsonEncoder
 from lib.verify import verify
 
 
-class PasetoException(Exception):
-    pass
-
-
-class InvalidVersionException(PasetoException):
-    pass
-
-
-class InvalidPurposeException(PasetoException):
-    pass
-
-
-class InvalidTokenException(PasetoException):
-    pass
-
-
-class PasetoValidationError(PasetoException):
-    pass
-
-
-class PasetoTokenExpired(PasetoValidationError):
-    pass
-
-
 DEFAULT_RULES = {'exp'}
 inv_purp = 'invalid purpose'
 
@@ -37,7 +13,7 @@ def check_claims(given, required):
     if required:
         missing_claims = set(required).difference(given)
         if missing_claims:
-            raise PasetoValidationError(
+            raise ValueError(
                 f'required claims missing {missing_claims}')
 
 
@@ -76,7 +52,7 @@ def parse(
     :return:
     """
     if purpose not in {'local', 'public'}:
-        raise InvalidPurposeException(inv_purp)
+        raise ValueError(inv_purp)
     if not key:
         raise ValueError('key is required')
     if purpose == 'local':
@@ -103,5 +79,5 @@ def parse(
         exp = decoded_message['exp']
         when = pparse(exp)
         if now() > when:
-            raise PasetoTokenExpired('token expired')
+            raise ValueError('token expired')
     return {'message': decoded_message, 'footer': decoded_footer}

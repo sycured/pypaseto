@@ -5,14 +5,6 @@ from lib.json_helpers import JsonEncoder
 from lib.sign import sign
 
 
-class PasetoException(Exception):
-    pass
-
-
-class InvalidPurposeException(PasetoException):
-    pass
-
-
 inv_purp = 'invalid purpose'
 
 
@@ -44,7 +36,7 @@ def create(
     :return:
     """
     if purpose not in {'local', 'public'}:
-        raise InvalidPurposeException(inv_purp)
+        raise ValueError(inv_purp)
     if not key:
         raise ValueError('key is required')
 
@@ -69,5 +61,5 @@ def create(
             footer=encoded_footer
         )
     else:
-        raise InvalidPurposeException(inv_purp)
+        raise ValueError(inv_purp)
     return token
