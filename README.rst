@@ -1,17 +1,5 @@
 Platform-Agnostic Security Tokens for Python
 ============================================
-.. image:: https://img.shields.io/pypi/v/paseto.svg
-   :alt: PyPI
-   :target: https://pypi.python.org/pypi/paseto
-.. image:: https://img.shields.io/pypi/l/paseto.svg
-   :alt: PyPI - License
-   :target: https://pypi.python.org/pypi/paseto
-
-
-.. image:: https://travis-ci.org/rlittlefield/pypaseto.svg?branch=master
-    :target: https://travis-ci.org/rlittlefield/pypaseto
-
-
 .. image:: https://sonarcloud.io/api/project_badges/measure?project=sycured_pypaseto&metric=alert_status
    :alt: Quality Gate Status
    :target: https://sonarcloud.io/dashboard?id=sycured_pypaseto
@@ -24,17 +12,8 @@ This is an unofficial initial implementation of
 
 This is not yet production-ready; use at your own risk.
 
-Forked from `https://github.com/JimDabell/pypast <https://github.com/JimDabell/pypast>`_,
-which was originally designed for an earlier spec of PASETO when it was still
-PAST.
-
-Installation
-------------
-
-.. code-block:: bash
-
-	pip install paseto
-
+Forked from `https://github.com/rlittlefield/pypaseto <https://github.com/rlittlefield/pypaseto>`_,
+which was originally pypaseto.
 
 Usage
 -----
