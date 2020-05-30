@@ -55,10 +55,7 @@ def parse(
         raise ValueError(inv_purp)
     if not key:
         raise ValueError('key is required')
-    if purpose == 'local':
-        result = decrypt(token, key)
-    else:
-        result = verify(token, key)
+    result = decrypt(token, key) if purpose == 'local' else verify(token, key)
     decoded_message = encoder.loads(result['message'])
     decoded_footer = encoder.loads(result['footer']) if result[
         'footer'] else None
